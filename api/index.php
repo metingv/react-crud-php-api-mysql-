@@ -10,10 +10,17 @@ $objDb = new DbConnect;
 $conn = $objDb->connect();
 
 $method = $_SERVER['REQUEST_METHOD'];
+$path = explode('/', $_SERVER['REQUEST_URI']);  // yollari aliriq request uri
+//seyfe ilk yuklenende arrayda 4 elemet olur cunki routesin uzunlugu 4dur ilk yuklenende  amma linklerde :id/ parametrleri olsa nezeri alinir amma seyfe ilk yuklenende bos string olur ve path[0] beraber olur diger yollar deyerlerini alir
+// $path[0] yeni /  =  $path[3]  ikiside bos string gerek harasa cliklensinki  $path[3]  deyer alsin klinlenmse beraber olur
+// var_dump($path[0]) ;   http://localhost:3000/
+// var_dump($path[1]) ;   http://localhost:3000/user/
+// var_dump($path[2]) ;   http://localhost:3000/user/34/
+// var_dump($path[3]) ;   http://localhost:3000/user/34/edit
 switch($method) {
     case "GET":
         $sql = "SELECT * FROM users";
-        $path = explode('/', $_SERVER['REQUEST_URI']);
+   
         if(isset($path[3]) && is_numeric($path[3])) {
             // tek bir useri almaq ucun
             $sql .= " WHERE id = :id";
@@ -73,9 +80,10 @@ switch($method) {
         //delete user
         $sql = "DELETE FROM users WHERE id = :id";
         $path = explode('/', $_SERVER['REQUEST_URI']);
-
         $stmt = $conn->prepare($sql);
         $stmt->bindParam(':id', $path[3]);
+        // delete butonu / ana seyfede oldugu ucun ve  $path[3]  klinmediyi ve bos string aldigi ucun beraber olur =  $path[0] 
+        
 
         if($stmt->execute()) {
             $response = ['status' => 1, 'message' => 'Record deleted successfully.'];
